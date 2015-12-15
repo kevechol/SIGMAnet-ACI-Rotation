@@ -1,0 +1,5 @@
+[all:vars]
+configdir=/home/cisco/Training/Ansible/configs
+
+[nexus]
+n9k1

@@ -1,0 +1,16 @@
+---
+
+- name: gather facts from nexus 9000 switches
+  hosts: switches
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: building config for nexus switches
+    nxapi_facts: 
+      device={{ inventory_hostname }}
+      fact=Type
+    register: my_facts
+
+  - debug: 
+      msg="{{ my_facts.status }}"

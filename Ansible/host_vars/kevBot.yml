@@ -1,0 +1,7 @@
+---
+hostname: kevBot
+mgmt_ip: 172.31.217.143/23
+vlans:
+  - { id: 50, name: dummy }
+  - { id: 51, name: haha }
+  - { id: 89, name: Baldwin }
