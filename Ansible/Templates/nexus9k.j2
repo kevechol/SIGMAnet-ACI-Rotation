@@ -18,7 +18,7 @@ snmp-server community {{ snmp.rw_string }} group network-admin
 
 ntp server {{ ntp_server }}
 
-{% for routes in route %}
+{% for route in routes %}
 {{ route }}
 {% endfor %}
 

@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+import xmltodict
+import json
+from device import Device
+
+def show_mgmt_intf(sw):
+	get_data = sw.show('show interface mgmt0')
+
+	result = xmltodict.parse(get_data[1])
+
+	mgmt_intf = result['ins_api']['outputs']['output']['body']['TABLE_interface']['ROW_interface']
+
+	duplex = 'eth_duplex'
+	speed = 'eth_speed'
+	ip_addr = 'eth_ip_addr'
+	mask = 'eth_ip_mask'
+	name = 'interface'
+
+	mgmt_dict = {'duplex':mgmt_intf[duplex], 'speed':mgmt_intf[speed], 'ip_addr':mgmt_intf[ip_addr] + '/' + mgmt_intf[mask], 'name':mgmt_intf[name]}
+
+	return mgmt_dict
+
+
+def show_hw(sw):
+	get_data = sw.show('show hardware')
+
+	result = xmltodict.parse(get_data[1])
+
+	hw = result['ins_api']['outputs']['output']['body']
+	blades = result['ins_api']['outputs']['output']['body']['TABLE_slot']['ROW_slot']['TABLE_slot_info']['ROW_slot_info']
+
+	uptime_days = 'kern_uptm_days'
+	uptime_hours = 'kern_uptm_hrs'
+	uptime_mins = 'kern_uptm_mins'
+	uptime_secs = 'kern_uptm_secs'
+	hostname = 'host_name'
+	bootflash = 'bootflash_size'
+	os_version = 'kickstart_ver_str'
+	memory = 'memory'
+	mem_type = 'mem_type'
+	last_reboot_reason = 'rr_reason'
+	model = 'chassis_id'
+	blade_model = 'model_num'
+	blade_serial = 'serial_num'
+
+	hw_dict = {'uptime': hw[uptime_days] + ' day(s) ' + hw[uptime_hours] + ' hours(s) ' + hw[uptime_mins] + ' min(s) ' + hw[uptime_secs] + ' sec(s)'}
+	hw_dict.update({'hostname': hw[hostname], 'bootflash': hw[bootflash], 'os_version': hw[os_version], 'memory': hw[memory] + hw[mem_type]})
+	hw_dict.update({'last_reboot_reason': hw[last_reboot_reason], 'type':hw[model]})
+
+	serial_numbers = {}
+	for each in blades:
+		if 'serial_num' in each.keys():
+			serial_num = each['serial_num']
+			model_num = each['model_num']
+			serial_numbers.update({serial_num:model_num})
+
+	hw_dict.update({'serial_numbers':serial_numbers})
+	return hw_dict
+
+
+
+def main():
+	
+	switch = Device(ip='172.31.217.143', username='admin', password='cisco123')
+	switch.open()
+
+	intf = show_mgmt_intf(switch)
+	hw = show_hw(switch)
+
+	getfacts = hw
+	getfacts.update({'mgmt_intf':intf})
+
+	print json.dumps(getfacts, indent=4)
+
+if __name__ == "__main__":
+	main()

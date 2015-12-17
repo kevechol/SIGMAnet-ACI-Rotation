@@ -21,7 +21,7 @@
     nxapi_interface:
       interface={{ item }}
       device={{ inventory_hostname }}
-      description="Configured by Ansible on {{ item }} for {{ inventory_hostname}}"
+      description="Configured by Ansible on {{ item }} for {{ inventory_hostname }}"
       config_state=default
       admin_state=shutdown
       username=admin
